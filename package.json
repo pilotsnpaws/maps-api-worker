@@ -1,0 +1,14 @@
+{
+  "name": "maps-api-lambda",
+  "version": "1.0.0",
+  "description": "A simple API to hit the PNP DB and get data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "mysql": "^2.18.1"
+  }
+}
