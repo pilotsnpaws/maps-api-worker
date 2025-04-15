@@ -38,8 +38,60 @@ export default {
         disableEval: true,
       });
 
-      // Query all trips from the view
-      const [results] = await connection.query("SELECT * FROM prod_forum.vw_lines");
+      // Parse filter query parameters
+      const lastPostBefore = url.searchParams.get("last_post_before");
+      const lastPostAfter = url.searchParams.get("last_post_after");
+      const updatedLastDays = url.searchParams.get("updated_last_days");
+
+      // Build the query dynamically based on filters
+      let baseQuery = `SELECT
+        last_post,
+        last_post_human,
+        topic_id,
+        topic_title,
+        pnp_sendZip,
+        sendLat,
+        sendLon,
+        pnp_recZip,
+        recLat,
+        recLon,
+        sendCity,
+        recCity,
+        diffLat,
+        diffLon,
+        icon_id,
+        forum_id,
+        trip_status
+      FROM prod_forum.vw_lines`;
+      const whereClauses: string[] = [];
+      const params: any[] = [];
+
+      if (lastPostBefore) {
+        whereClauses.push("last_post < ?");
+        params.push(lastPostBefore);
+      }
+      if (lastPostAfter) {
+        whereClauses.push("last_post > ?");
+        params.push(lastPostAfter);
+      }
+      if (updatedLastDays) {
+        const daysInt = parseInt(updatedLastDays, 10);
+        if (!isNaN(daysInt) && daysInt > 0) {
+          // Use the provided local time as the source of truth
+          const now = new Date("2025-04-15T12:51:54-06:00");
+          const cutoff = new Date(now.getTime() - daysInt * 24 * 60 * 60 * 1000);
+          // Format as 'YYYY-MM-DD HH:mm:ss'
+          const pad = (n: number) => n.toString().padStart(2, '0');
+          const cutoffStr = `${cutoff.getFullYear()}-${pad(cutoff.getMonth() + 1)}-${pad(cutoff.getDate())} ${pad(cutoff.getHours())}:${pad(cutoff.getMinutes())}:${pad(cutoff.getSeconds())}`;
+          whereClauses.push("last_post >= ?");
+          params.push(cutoffStr);
+        }
+      }
+      if (whereClauses.length > 0) {
+        baseQuery += " WHERE " + whereClauses.join(" AND ");
+      }
+
+      const [results] = await connection.query(baseQuery, params);
       ctx.waitUntil(connection.end());
 
       return new Response(JSON.stringify(results), {
