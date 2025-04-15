@@ -91,7 +91,8 @@ export default {
         baseQuery += " WHERE " + whereClauses.join(" AND ");
       }
 
-      const { results } = await connection.execute(baseQuery, params);
+      const [results] = await connection.query(baseQuery, params);
+
       ctx.waitUntil(connection.end());
 
       return new Response(JSON.stringify(results), {

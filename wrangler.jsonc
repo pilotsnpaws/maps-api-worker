@@ -16,7 +16,8 @@
 	"hyperdrive": [
 		{
 		  "binding": "HYPERDRIVE",
-		  "id": "2d8371c752954d879f96d49819ce014e"
+		  "id": "2d8371c752954d879f96d49819ce014e",
+		  "localConnectionString": "mysql://prod_lambda_ro:xnoE4p24hhecfPgDBAca@pnp-prod-cluster-1.cluster-ro-cjt0eaic9vkp.us-east-2.rds.amazonaws.com:3306/prod_forum"
 		}
 	]
 
