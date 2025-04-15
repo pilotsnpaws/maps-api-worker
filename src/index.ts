@@ -22,36 +22,34 @@ export interface Env {
 
 export default {
   async fetch(request, env, ctx): Promise<Response> {
-    // Create a connection using the mysql2 driver (or any support driver, ORM or query builder)
-    // with the Hyperdrive credentials. These credentials are only accessible from your Worker.
-    const connection = await createConnection({
-      host: env.HYPERDRIVE.host,
-      user: env.HYPERDRIVE.user,
-      password: env.HYPERDRIVE.password,
-      database: env.HYPERDRIVE.database,
-      port: env.HYPERDRIVE.port,
+    const url = new URL(request.url);
+    if (url.pathname !== "/trips") {
+      return new Response("Not Found", { status: 404 });
+    }
 
-      // The following line is needed for mysql2 compatibility with Workers
-      // mysql2 uses eval() to optimize result parsing for rows with > 100 columns
-      // Configure mysql2 to use static parsing instead of eval() parsing with disableEval
-      disableEval: true,
-    });
-
+    let connection;
     try {
-      // Sample query
-      const [results, fields] = await connection.query("SHOW tables;");
+      connection = await createConnection({
+        host: env.HYPERDRIVE.host,
+        user: env.HYPERDRIVE.user,
+        password: env.HYPERDRIVE.password,
+        database: env.HYPERDRIVE.database,
+        port: env.HYPERDRIVE.port,
+        disableEval: true,
+      });
 
-      // Clean up the client after the response is returned, before the Worker is killed
+      // Query all trips from the view
+      const [results] = await connection.query("SELECT * FROM prod_forum.vw_lines");
       ctx.waitUntil(connection.end());
 
-      // Return result rows as JSON
-      return new Response(JSON.stringify({ results, fields }), {
+      return new Response(JSON.stringify(results), {
         headers: {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
         },
       });
     } catch (e) {
+      if (connection) ctx.waitUntil(connection.end());
       console.error(e);
       return Response.json(
         { error: e instanceof Error ? e.message : e },
