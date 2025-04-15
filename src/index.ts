@@ -27,7 +27,7 @@ export default {
       return new Response("Not Found", { status: 404 });
     }
 
-    let connection;
+    let connection: any = undefined;
     try {
       connection = await createConnection({
         host: env.HYPERDRIVE.host,
@@ -78,7 +78,7 @@ export default {
         const daysInt = parseInt(updatedLastDays, 10);
         if (!isNaN(daysInt) && daysInt > 0) {
           // Use the provided local time as the source of truth
-          const now = new Date("2025-04-15T12:51:54-06:00");
+          const now = new Date();
           const cutoff = new Date(now.getTime() - daysInt * 24 * 60 * 60 * 1000);
           // Format as 'YYYY-MM-DD HH:mm:ss'
           const pad = (n: number) => n.toString().padStart(2, '0');
@@ -91,7 +91,7 @@ export default {
         baseQuery += " WHERE " + whereClauses.join(" AND ");
       }
 
-      const [results] = await connection.query(baseQuery, params);
+      const { results } = await connection.execute(baseQuery, params);
       ctx.waitUntil(connection.end());
 
       return new Response(JSON.stringify(results), {
