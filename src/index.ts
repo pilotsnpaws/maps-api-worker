@@ -38,8 +38,28 @@ export default {
         disableEval: true,
       });
 
-      // Query all trips from the view
-      const [results] = await connection.query("SELECT * FROM prod_forum.vw_lines");
+      // Parse filter query parameters
+      const lastPostBefore = url.searchParams.get("last_post_before");
+      const lastPostAfter = url.searchParams.get("last_post_after");
+
+      // Build the query dynamically based on filters
+      let baseQuery = "SELECT * FROM prod_forum.vw_lines";
+      const whereClauses: string[] = [];
+      const params: any[] = [];
+
+      if (lastPostBefore) {
+        whereClauses.push("last_post < ?");
+        params.push(lastPostBefore);
+      }
+      if (lastPostAfter) {
+        whereClauses.push("last_post > ?");
+        params.push(lastPostAfter);
+      }
+      if (whereClauses.length > 0) {
+        baseQuery += " WHERE " + whereClauses.join(" AND ");
+      }
+
+      const [results] = await connection.query(baseQuery, params);
       ctx.waitUntil(connection.end());
 
       return new Response(JSON.stringify(results), {
