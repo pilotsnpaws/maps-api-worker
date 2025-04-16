@@ -39,8 +39,15 @@ bower_components
 build/Release
 
 # Dependency directories
-node_modules/
-jspm_packages/
+/node_modules
+/.pnp
+.pnp.js
+
+# dotenv environment files
+.env
+.env.*
+# Do NOT ignore .env.example; keep it tracked for reference
+!.env.example
 
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
