@@ -18,7 +18,7 @@
 		  "binding": "HYPERDRIVE",
 		  "id": "2d8371c752954d879f96d49819ce014e",
 		  // Set via environment variable for security; see .env.example for local dev
-		  "localConnectionString": "${MYSQL_CONNECTION_STRING}"
+		  "localConnectionString": Response(env.MYSQL_CONNECTION_STRING)
 		}
 	]
 
