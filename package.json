@@ -2,6 +2,7 @@
 	"name": "maps-api",
 	"version": "0.0.0",
 	"private": true,
+	"homepage": ".",
 	"scripts": {
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
