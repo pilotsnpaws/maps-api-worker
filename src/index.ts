@@ -41,7 +41,11 @@ export default {
       // Parse filter query parameters
       const lastPostBefore = url.searchParams.get("last_post_before");
       const lastPostAfter = url.searchParams.get("last_post_after");
-      const updatedLastDays = url.searchParams.get("updated_last_days");
+      let updatedLastDays = url.searchParams.get("updated_last_days");
+      // Default to last 3 days if no last_post_before and no last_post_after provided
+      if (!lastPostBefore && !lastPostAfter && !updatedLastDays) {
+        updatedLastDays = "3";
+      }
 
       // Build the query dynamically based on filters
       let baseQuery = `SELECT
