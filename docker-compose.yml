@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  # Cloudflare Worker (remote development mode)
+  worker:
+    build: .
+    container_name: maps-api-worker
+    ports:
+      - "8787:8787"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    # Uses actual Hyperdrive connection in Cloudflare's environment
+    command: npx wrangler dev --remote

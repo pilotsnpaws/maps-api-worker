@@ -1,0 +1,266 @@
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Map container */
+#map {
+  height: 100%;
+  width: 100%;
+}
+
+/* Map controls styling */
+.map-control {
+  background: white;
+  padding: 12px;
+  margin: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  max-width: 300px;
+}
+
+.map-control h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.map-control h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Options box */
+#optionsBox {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.control-group {
+  margin-bottom: 12px;
+}
+
+.control-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: #555;
+}
+
+.radio-label {
+  display: block;
+  margin: 4px 0;
+  font-weight: normal !important;
+  cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+  margin-right: 6px;
+  cursor: pointer;
+}
+
+#optionsBox select,
+#optionsBox input[type="text"] {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+#optionsBox input[type="text"]:focus,
+#optionsBox select:focus {
+  outline: none;
+  border-color: #4A90E2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.update-btn {
+  width: 100%;
+  padding: 10px;
+  background: #4A90E2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.update-btn:hover {
+  background: #357ABD;
+}
+
+.update-btn:active {
+  background: #2868A8;
+}
+
+/* Legend */
+#legend {
+  min-width: 180px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.legend-item img {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+
+.legend-item span {
+  font-size: 13px;
+  color: #555;
+}
+
+/* Volunteers list */
+.volunteers-list {
+  max-width: 250px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.volunteers-list h4 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#volunteerCount {
+  font-weight: normal;
+  color: #666;
+}
+
+#volunteersList {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  max-height: 50vh;
+}
+
+.volunteer-item {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.volunteer-item:last-child {
+  border-bottom: none;
+}
+
+.volunteer-item a {
+  color: #4A90E2;
+  text-decoration: none;
+}
+
+.volunteer-item a:hover {
+  text-decoration: underline;
+}
+
+.copy-btn {
+  width: 100%;
+  padding: 8px;
+  background: #4A90E2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.copy-btn:hover {
+  background: #357ABD;
+}
+
+.copy-btn:active {
+  background: #2868A8;
+}
+
+/* Scrollbar styling */
+#volunteersList::-webkit-scrollbar,
+#optionsBox::-webkit-scrollbar {
+  width: 6px;
+}
+
+#volunteersList::-webkit-scrollbar-track,
+#optionsBox::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+#volunteersList::-webkit-scrollbar-thumb,
+#optionsBox::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+#volunteersList::-webkit-scrollbar-thumb:hover,
+#optionsBox::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Google Maps InfoWindow styling adjustments */
+.gm-style .gm-style-iw-c {
+  padding: 12px !important;
+}
+
+.gm-style .gm-style-iw-d {
+  overflow: auto !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .map-control {
+    max-width: 90vw;
+    font-size: 13px;
+  }
+  
+  #optionsBox {
+    max-height: 80vh;
+  }
+  
+  .volunteers-list {
+    max-width: 90vw;
+    max-height: 60vh;
+  }
+  
+  #volunteersList {
+    max-height: 40vh;
+  }
+}
+
+/* Loading state (optional enhancement) */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: "Loading...";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}

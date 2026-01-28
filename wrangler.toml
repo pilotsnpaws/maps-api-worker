@@ -1,0 +1,54 @@
+# For more details on how to configure Wrangler, refer to:
+# https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name = "maps-api"
+main = "src/index.ts"
+compatibility_date = "2025-04-14"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+# Hyperdrive binding for MySQL connection (development/default)
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "2d8371c752954d879f96d49819ce014e"
+# Below is set via environment variable WRANGLER_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE
+# localConnectionString = "mysql://your_user:your_pass@your_host:3306/your_db"
+
+
+# Static Assets
+[assets]
+directory = "./public/"
+binding = "ASSETS"
+
+# Staging Environment
+[env.staging]
+name = "maps-api-staging"
+
+[[env.staging.hyperdrive]]
+binding = "HYPERDRIVE"
+id = "2d8371c752954d879f96d49819ce014e"  # Replace with staging Hyperdrive ID
+
+# Production Environment
+[env.production]
+name = "maps-api-production"
+
+[[env.production.hyperdrive]]
+binding = "HYPERDRIVE"
+id = "2d8371c752954d879f96d49819ce014e"  # Replace with production Hyperdrive ID
+
+# Environment Variables
+# For local dev: Use .dev.vars file (already created)
+# For production: Use `wrangler secret put GOOGLE_MAPS_API_KEY`
+# [vars]
+# GOOGLE_MAPS_API_KEY = "your_key_here"  # Don't set secrets here in production
+
+# Smart Placement
+# [placement]
+# mode = "smart"
+
+# Service Bindings (communicate between multiple Workers)
+# [[services]]
+# binding = "MY_SERVICE"
+# service = "my-service"
