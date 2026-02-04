@@ -29,8 +29,8 @@ window.initMap = function() {
     },
     streetViewControl: false,
     scaleControl: true,
-    mapTypeControl: false
-  });
+    mapTypeControl: false,
+  }); 
 
   // Create a single InfoWindow to reuse
   infoWindow = new google.maps.InfoWindow();
@@ -154,10 +154,11 @@ function createVolunteerMarker(volunteer) {
   }
   
   // Create marker image element for AdvancedMarkerElement
+  const iconSize = iconUrl === '/images/icon_volunteer.svg' ? 20 : 32;
   const img = document.createElement('img');
   img.src = iconUrl;
-  img.width = 32;
-  img.height = 32;
+  img.width = iconSize;
+  img.height = iconSize;
   img.style.cursor = 'pointer';
   
   // Create marker using AdvancedMarkerElement
@@ -181,7 +182,7 @@ function createVolunteerMarker(volunteer) {
   const infoContent = `
     <div style="white-space:nowrap; margin:0 0 10px 10px;">
       Username: <a href="https://pilotsnpaws.org/forum/memberlist.php?mode=viewprofile&u=${volunteer.userID}" target="_blank">${volunteer.username}</a><br>
-      <img align="right" style="vertical-align:top;" src="${iconUrl}" width="32" height="32">
+      <img align="right" style="vertical-align:top;" src="${iconUrl}" width="${iconSize}" height="${iconSize}">
       ${pilotInfo}
       Last visit: ${volunteer.lastVisitHuman}<br>
     </div>

@@ -15,6 +15,57 @@ export interface Env {
   GOOGLE_MAPS_API_KEY: string;
 }
 
+export const buildZipDistanceFilter = (zipCode: string, distance: string) => {
+  const zipCodes = zipCode
+    .split(",")
+    .map((z) => z.trim())
+    .filter((z) => z !== "")
+    .filter((z) => /^\d{5}$/.test(z));
+
+  if (zipCodes.length === 0) return null;
+
+  const distanceMilesRaw = Number.parseFloat(distance);
+  const distanceMiles =
+    !Number.isFinite(distanceMilesRaw) || distanceMilesRaw <= 0
+      ? 10
+      : distanceMilesRaw;
+  const degreesDelta = distanceMiles / 69;
+  const zipPlaceholders = zipCodes.map(() => "?").join(", ");
+
+  const clause = `(
+          apt_id IN (
+            SELECT z1.apt_id FROM (
+              SELECT a.apt_id, a.lat, a.lon, minB.minLat, maxB.maxLat, minB.minLon, maxB.maxLon
+              FROM airports a,
+              (SELECT MIN(CAST(lat AS DECIMAL(12,6))) - ? AS minLat, MIN(CAST(lon AS DECIMAL(12,6))) - ? AS minLon FROM zipcodes WHERE zip IN (${zipPlaceholders})) minB,
+              (SELECT MAX(CAST(lat AS DECIMAL(12,6))) + ? AS maxLat, MAX(CAST(lon AS DECIMAL(12,6))) + ? AS maxLon FROM zipcodes WHERE zip IN (${zipPlaceholders})) maxB
+              WHERE CAST(a.lat AS DECIMAL(12,6)) BETWEEN minB.minLat AND maxB.maxLat
+                AND CAST(a.lon AS DECIMAL(12,6)) BETWEEN minB.minLon AND maxB.maxLon
+                AND minB.minLat IS NOT NULL AND maxB.maxLat IS NOT NULL
+            ) z1
+          )
+          OR zip IN (
+            SELECT z2.zip FROM (
+              SELECT a.zip, a.lat, a.lon, minB.minLat, maxB.maxLat, minB.minLon, maxB.maxLon
+              FROM zipcodes a,
+              (SELECT MIN(CAST(lat AS DECIMAL(12,6))) - ? AS minLat, MIN(CAST(lon AS DECIMAL(12,6))) - ? AS minLon FROM zipcodes WHERE zip IN (${zipPlaceholders})) minB,
+              (SELECT MAX(CAST(lat AS DECIMAL(12,6))) + ? AS maxLat, MAX(CAST(lon AS DECIMAL(12,6))) + ? AS maxLon FROM zipcodes WHERE zip IN (${zipPlaceholders})) maxB
+              WHERE CAST(a.lat AS DECIMAL(12,6)) BETWEEN minB.minLat AND maxB.maxLat
+                AND CAST(a.lon AS DECIMAL(12,6)) BETWEEN minB.minLon AND maxB.maxLon
+                AND minB.minLat IS NOT NULL AND maxB.maxLat IS NOT NULL
+            ) z2
+          )
+        )`;
+
+  const params: Array<string | number> = [];
+  params.push(degreesDelta, degreesDelta, ...zipCodes);
+  params.push(degreesDelta, degreesDelta, ...zipCodes);
+  params.push(degreesDelta, degreesDelta, ...zipCodes);
+  params.push(degreesDelta, degreesDelta, ...zipCodes);
+
+  return { clause, params };
+};
+
 async function handleTrips(
   url: URL,
   env: Env,
@@ -178,33 +229,11 @@ async function handleVolunteers(
     // Filter by location (zipCode + distance)
     // Matches PHP implementation - finds volunteers within bounding box of provided zip codes
     if (zipCode && zipCode.trim() !== "") {
-      // Escape single quotes and allow comma-separated zip codes
-      const escapedZipCode = zipCode.replace(/'/g, "\\'");
-      const distanceFilterSQL = `(
-        apt_id IN (
-          SELECT z1.apt_id FROM (
-            SELECT a.apt_id, a.lat, a.lon, minB.minLat, maxB.maxLat, minB.minLon, maxB.maxLon
-            FROM airports a,
-            (SELECT MIN(CAST(lat AS DECIMAL(12,6))) - 1 AS minLat, MIN(CAST(lon AS DECIMAL(12,6))) - 1 AS minLon FROM zipcodes WHERE zip IN ('${escapedZipCode}')) minB,
-            (SELECT MAX(CAST(lat AS DECIMAL(12,6))) + 1 AS maxLat, MAX(CAST(lon AS DECIMAL(12,6))) + 1 AS maxLon FROM zipcodes WHERE zip IN ('${escapedZipCode}')) maxB
-            WHERE CAST(a.lat AS DECIMAL(12,6)) BETWEEN minB.minLat AND maxB.maxLat
-              AND CAST(a.lon AS DECIMAL(12,6)) BETWEEN minB.minLon AND maxB.maxLon
-              AND minB.minLat IS NOT NULL AND maxB.maxLat IS NOT NULL
-          ) z1
-        )
-        OR zip IN (
-          SELECT z2.zip FROM (
-            SELECT a.zip, a.lat, a.lon, minB.minLat, maxB.maxLat, minB.minLon, maxB.maxLon
-            FROM zipcodes a,
-            (SELECT MIN(CAST(lat AS DECIMAL(12,6))) - 1 AS minLat, MIN(CAST(lon AS DECIMAL(12,6))) - 1 AS minLon FROM zipcodes WHERE zip IN ('${escapedZipCode}')) minB,
-            (SELECT MAX(CAST(lat AS DECIMAL(12,6))) + 1 AS maxLat, MAX(CAST(lon AS DECIMAL(12,6))) + 1 AS maxLon FROM zipcodes WHERE zip IN ('${escapedZipCode}')) maxB
-            WHERE CAST(a.lat AS DECIMAL(12,6)) BETWEEN minB.minLat AND maxB.maxLat
-              AND CAST(a.lon AS DECIMAL(12,6)) BETWEEN minB.minLon AND maxB.maxLon
-              AND minB.minLat IS NOT NULL AND maxB.maxLat IS NOT NULL
-          ) z2
-        )
-      )`;
-      whereClauses.push(distanceFilterSQL);
+      const filter = buildZipDistanceFilter(zipCode, distance);
+      if (filter) {
+        whereClauses.push(filter.clause);
+        params.push(...filter.params);
+      }
     }
 
     if (whereClauses.length > 0) {
