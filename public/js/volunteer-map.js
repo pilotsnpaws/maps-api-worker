@@ -23,6 +23,7 @@ window.initMap = function() {
     zoom: 5,
     center: CENTER_OF_US,
     mapId: 'VOLUNTEER_MAP', // Required for AdvancedMarkerElement
+    maxZoom: 16,
     zoomControl: true,
     zoomControlOptions: {
       position: google.maps.ControlPosition.RIGHT_BOTTOM

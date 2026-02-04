@@ -8,9 +8,10 @@ async function initMap() {
   // Create map centered on US
   map = new google.maps.Map(document.getElementById('map'), {
     zoom: 5,
+    maxZoom: 16,
     center: { lat: 39.8283, lng: -98.5795 }, // Center of contiguous US
     mapTypeId: 'terrain',
-    mapId: 'DEMO_MAP_ID' // Required for advanced markers
+    mapId: 'TRIP_MAP' // Required for advanced markers
   });
 
   // Set up event listeners
