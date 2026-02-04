@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <title>Pilots N Paws - Trip Request Map</title>
+  <link rel="stylesheet" href="/css/map.css">
+</head>
+<body>
+  <div id="map"></div>
+
+  <!-- Options Control Box -->
+  <div id="optionsBox" class="map-control">
+    <h3>Filter by recent activity</h3>
+    
+    <div class="control-group">
+      <label class="radio-label">
+        <input type="radio" name="lastPostAge" value="0"> Today only
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="lastPostAge" value="3" checked> In the last 3 days
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="lastPostAge" value="5"> In the last 5 days
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="lastPostAge" value="7"> In the last 7 days
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="lastPostAge" value="14"> In the last 14 days
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="lastPostAge" value="30"> In the last 30 days
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="lastPostAge" value="365"> Last 12 months
+      </label>
+    </div>
+
+    <button id="updateBtn" class="update-btn">Update Map</button>
+  </div>
+
+  <!-- Legend -->
+  <div id="legend" class="map-control">
+    <h4>Legend</h4>
+    <div class="legend-item">
+      <div class="legend-color" style="background-color: #00AD6E;"></div>
+      <span>Eastbound</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background-color: #8D00DE;"></div>
+      <span>Westbound</span>
+    </div>
+  </div>
+
+  <!-- Load our map logic -->
+  <script src="/js/trips-map.js"></script>
+  
+  <!-- Load Google Maps API -->
+  <script>
+    // Fetch Google Maps API key from worker and load Maps API
+    (async function() {
+      try {
+        const response = await fetch('/api/config');
+        const config = await response.json();
+        
+        if (!config.googleMapsApiKey) {
+          console.error('Google Maps API key not configured');
+          document.getElementById('map').innerHTML = '<div style="padding: 20px; color: red;">Error: Google Maps API key not configured. Please set GOOGLE_MAPS_API_KEY environment variable.</div>';
+          return;
+        }
+        
+        // Dynamically load Google Maps API with the key from config
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${config.googleMapsApiKey}&callback=initMap&loading=async&libraries=geometry`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      } catch (error) {
+        console.error('Failed to load configuration:', error);
+        document.getElementById('map').innerHTML = '<div style="padding: 20px; color: red;">Error: Failed to load configuration</div>';
+      }
+    })();
+  </script>
+</body>
+</html>

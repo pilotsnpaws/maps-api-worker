@@ -3,9 +3,10 @@ let map;
 let clusterer;
 let allMarkers = [];
 let infoWindow;
+let isInitialLoad = true;
 
-// Center of US
-const CENTER_OF_US = { lat: 37.0, lng: -95.0 };
+// Center of continental US
+const CENTER_OF_US = { lat: 39.5, lng: -98.35 };
 
 // Small random offset to prevent exact overlaps
 const MIN_OFFSET = 0.999965;
@@ -104,10 +105,11 @@ async function updateVolunteers() {
     }
     clusterer = new markerClusterer.MarkerClusterer({ map, markers: allMarkers });
     
-    // Fit map to show all markers
-    if (allMarkers.length > 0) {
+    // Fit map to show all markers (skip on initial load to preserve default view)
+    if (allMarkers.length > 0 && !isInitialLoad) {
       map.fitBounds(bounds);
     }
+    isInitialLoad = false;
     
     // Update the visible volunteers list
     updateMappedVolunteersList();

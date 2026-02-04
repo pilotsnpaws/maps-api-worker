@@ -132,7 +132,7 @@ async function handleVolunteers(
       pf_foster_yn as foster,
       pf_pilot_yn as pilot,
       pf_flying_radius as flyingRadius,
-      UPPER(apt)_id as airportID,
+      UPPER(apt_id) as airportID,
       apt_name as airportName,
       zip,
       lat,
@@ -247,10 +247,10 @@ export default {
       });
     }
 
-    // Map page routes (will serve static HTML/assets in the future)
+    // Map page routes
     if (url.pathname === "/maps/trips" || url.pathname === "/maps/trips/") {
-      // TODO: Serve trips map page
-      return new Response("Trips map page", { status: 200 });
+      // Serve the trips map HTML page
+      return env.ASSETS.fetch(new Request(new URL("/trips.html", request.url)));
     }
 
     if (url.pathname === "/maps/volunteers" || url.pathname === "/maps/volunteers/") {
