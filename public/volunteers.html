@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <title>Pilots N Paws - Volunteer Location Map</title>
+  <link rel="stylesheet" href="/css/map.css">
+</head>
+<body>
+  <div id="map"></div>
+
+  <div id="optionsBox" class="map-control">
+    <h3>Filter Options</h3>
+    
+    <div class="control-group">
+      <label for="lastVisitAge">Last Visit:</label>
+      <select id="lastVisitAge">
+        <option value="7">Last 7 days</option>
+        <option value="30">Last 30 days</option>
+        <option value="90">Last 90 days</option>
+        <option value="180">Last 180 days</option>
+        <option value="365" selected>Last 365 days</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label>Volunteer Type:</label>
+      <label class="radio-label">
+        <input type="radio" name="typesToShow" value="all" checked> All
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="typesToShow" value="pilot"> Pilots Only
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="typesToShow" value="foster"> Fosters Only
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="typesToShow" value="both"> Both Pilot & Foster
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="typesToShow" value="volunteer"> Volunteers Only
+      </label>
+    </div>
+
+    <div class="control-group">
+      <label for="zipCode">Zip Code (optional):</label>
+      <input type="text" id="zipCode" placeholder="00000">
+    </div>
+
+    <div class="control-group">
+      <label for="distance">Distance (miles):</label>
+      <select id="distance">
+        <option value="10">10</option>
+        <option value="30">30</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+        <option value="150">150</option>
+        <option value="200">200</option>
+      </select>
+    </div>
+
+    <button id="updateBtn" class="update-btn">Update Map</button>
+  </div>
+
+  <div id="legend" class="map-control">
+    <h4>Legend</h4>
+    <div class="legend-item">
+      <img src="/images/icon_plane_house_small.svg" alt="Pilot & Foster">
+      <span>Pilot & Foster</span>
+    </div>
+    <div class="legend-item">
+      <img src="/images/icon_plane_blue_small.svg" alt="Pilot">
+      <span>Pilot</span>
+    </div>
+    <div class="legend-item">
+      <img src="/images/icon_house_small.svg" alt="Foster">
+      <span>Foster</span>
+    </div>
+    <div class="legend-item">
+      <img src="/images/icon_volunteer.svg" alt="Volunteer">
+      <span>Volunteer</span>
+    </div>
+  </div>
+
+  <div id="mappedVolunteers" class="map-control volunteers-list">
+    <h4>Visible Volunteers <span id="volunteerCount">(0)</span></h4>
+    <div id="volunteersList"></div>
+    <button id="copyBtn" class="copy-btn">Copy Usernames</button>
+    <div id="hiddenUsernames" style="display: none;"></div>
+  </div>
+
+  <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+  
+  <script src="/js/volunteer-map.js"></script>
+  
+  <script>
+    (async function() {
+      try {
+        const response = await fetch('/api/config');
+        const config = await response.json();
+        
+        if (!config.googleMapsApiKey) {
+          console.error('Google Maps API key not configured');
+          document.getElementById('map').innerHTML = '<div style="padding: 20px; color: red;">Error: Google Maps API key not configured. Please set GOOGLE_MAPS_API_KEY environment variable.</div>';
+          return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${config.googleMapsApiKey}&callback=initMap&loading=async&libraries=marker`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      } catch (error) {
+        console.error('Failed to load configuration:', error);
+        document.getElementById('map').innerHTML = '<div style="padding: 20px; color: red;">Error: Failed to load configuration</div>';
+      }
+    })();
+  </script>
+</body>
+</html>

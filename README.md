@@ -28,12 +28,14 @@ npm run dev
 ```
 
 3. Access:
-   - Volunteer Map: http://localhost:8787/
-   - API: http://localhost:8787/trips or http://localhost:8787/volunteers
+   - Landing Page: http://localhost:8787/
+   - Trip Request Map: http://localhost:8787/maps/trips
+   - Volunteer Location Map: http://localhost:8787/maps/volunteers
+   - API: http://localhost:8787/api/trips or http://localhost:8787/api/volunteers
 
 ## API Endpoints
 
-### GET /trips
+### GET /api/trips
 
 Returns trip data from the database.
 
@@ -45,10 +47,10 @@ Returns trip data from the database.
 
 #### Example
 ```bash
-curl "http://localhost:8787/trips?updated_last_days=7"
+curl "http://localhost:8787/api/trips?updated_last_days=7"
 ```
 
-### GET /volunteers
+### GET /api/volunteers
 
 Returns volunteer location data with filtering options.
 
@@ -61,7 +63,7 @@ Returns volunteer location data with filtering options.
 
 #### Example
 ```bash
-curl "http://localhost:8787/volunteers?lastVisitAge=90&typesToShow=pilots"
+curl "http://localhost:8787/api/volunteers?lastVisitAge=90&typesToShow=pilots"
 ```
 
 ## Project Structure
@@ -71,13 +73,15 @@ maps-api-worker/
 ├── src/
 │   └── index.ts              # API endpoints and routing
 ├── public/                   # Static assets (served by worker)
-│   ├── index.html           # Volunteer map page
+│   ├── index.html           # Landing page
+│   ├── volunteers.html      # Volunteer map page
+│   ├── trips.html           # Trip request map page
 │   ├── css/map.css          # Map styling
 │   ├── js/volunteer-map.js  # Map logic
 │   └── images/              # Marker icons
 ├── test/
 │   └── index.spec.ts        # Tests
-└── wrangler.jsonc           # Worker configuration
+└── wrangler.toml            # Worker configuration
 ```
 
 ## Deployment
@@ -87,12 +91,12 @@ maps-api-worker/
 Before deploying, set the Google Maps API key as a secret:
 
 ```bash
-# Set as secret (recommended - not visible in wrangler.jsonc)
+# Set as secret (recommended - not visible in wrangler.toml)
 wrangler secret put GOOGLE_MAPS_API_KEY
 # You'll be prompted to enter the key
 
-# OR set in wrangler.jsonc vars (not recommended for sensitive keys)
-# Edit wrangler.jsonc and uncomment the GOOGLE_MAPS_API_KEY line
+# OR set in wrangler.toml vars (not recommended for sensitive keys)
+# Edit wrangler.toml and add GOOGLE_MAPS_API_KEY under [vars]
 ```
 
 ### Deploy

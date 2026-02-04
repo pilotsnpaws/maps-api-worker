@@ -1,0 +1,11 @@
+name = "maps-api-test"
+main = "src/index.ts"
+compatibility_date = "2025-03-10"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./public/"
+binding = "ASSETS"
+
+[vars]
+GOOGLE_MAPS_API_KEY = "test"

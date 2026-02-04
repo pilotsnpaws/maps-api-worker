@@ -4,126 +4,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="shortcut icon" href="/favicon.ico" />
-  <title>Pilots N Paws - Volunteer Location Map</title>
-  <link rel="stylesheet" href="/css/map.css">
+  <title>Pilots N Paws - Maps</title>
 </head>
 <body>
-  <div id="map"></div>
+  <main style="font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; max-width: 720px; margin: 48px auto; padding: 0 20px; line-height: 1.4;">
+    <h1 style="margin: 0 0 16px;">Pilots N Paws Maps</h1>
+    <p style="margin: 0 0 24px; color: #333;">Choose a map:</p>
 
-  <!-- Options Control Box -->
-  <div id="optionsBox" class="map-control">
-    <h3>Filter Options</h3>
-    
-    <div class="control-group">
-      <label for="lastVisitAge">Last Visit:</label>
-      <select id="lastVisitAge">
-        <option value="7">Last 7 days</option>
-        <option value="30">Last 30 days</option>
-        <option value="90">Last 90 days</option>
-        <option value="180">Last 180 days</option>
-        <option value="365" selected>Last 365 days</option>
-      </select>
+    <div style="display: grid; gap: 12px;">
+      <a href="/maps/trips" style="display: block; padding: 14px 16px; border: 1px solid #ddd; border-radius: 10px; text-decoration: none; color: inherit;">
+        <div style="font-weight: 600;">Trip Request Map</div>
+        <div style="color: #555; font-size: 14px;">View active trips by recent activity</div>
+      </a>
+      <a href="/maps/volunteers" style="display: block; padding: 14px 16px; border: 1px solid #ddd; border-radius: 10px; text-decoration: none; color: inherit;">
+        <div style="font-weight: 600;">Volunteer Location Map</div>
+        <div style="color: #555; font-size: 14px;">Filter volunteers by last visit, type, and radius</div>
+      </a>
     </div>
 
-    <div class="control-group">
-      <label>Volunteer Type:</label>
-      <label class="radio-label">
-        <input type="radio" name="typesToShow" value="all" checked> All
-      </label>
-      <label class="radio-label">
-        <input type="radio" name="typesToShow" value="pilot"> Pilots Only
-      </label>
-      <label class="radio-label">
-        <input type="radio" name="typesToShow" value="foster"> Fosters Only
-      </label>
-      <label class="radio-label">
-        <input type="radio" name="typesToShow" value="both"> Both Pilot & Foster
-      </label>
-      <label class="radio-label">
-        <input type="radio" name="typesToShow" value="volunteer"> Volunteers Only
-      </label>
-    </div>
-
-    <div class="control-group">
-      <label for="zipCode">Zip Code (optional):</label>
-      <input type="text" id="zipCode" placeholder="00000">
-    </div>
-
-    <div class="control-group">
-      <label for="distance">Distance (miles):</label>
-      <select id="distance">
-        <option value="10">10</option>
-        <option value="30">30</option>
-        <option value="50">50</option>
-        <option value="100">100</option>
-        <option value="150">150</option>
-        <option value="200">200</option>
-      </select>
-    </div>
-
-    <button id="updateBtn" class="update-btn">Update Map</button>
-  </div>
-
-  <!-- Legend -->
-  <div id="legend" class="map-control">
-    <h4>Legend</h4>
-    <div class="legend-item">
-      <img src="/images/icon_plane_house_small.svg" alt="Pilot & Foster">
-      <span>Pilot & Foster</span>
-    </div>
-    <div class="legend-item">
-      <img src="/images/icon_plane_blue_small.svg" alt="Pilot">
-      <span>Pilot</span>
-    </div>
-    <div class="legend-item">
-      <img src="/images/icon_house_small.svg" alt="Foster">
-      <span>Foster</span>
-    </div>
-    <div class="legend-item">
-      <img src="/images/icon_volunteer.svg" alt="Volunteer">
-      <span>Volunteer</span>
-    </div>
-  </div>
-
-  <!-- Mapped Volunteers List -->
-  <div id="mappedVolunteers" class="map-control volunteers-list">
-    <h4>Visible Volunteers <span id="volunteerCount">(0)</span></h4>
-    <div id="volunteersList"></div>
-    <button id="copyBtn" class="copy-btn">Copy Usernames</button>
-    <div id="hiddenUsernames" style="display: none;"></div>
-  </div>
-
-  <!-- Load MarkerClusterer from CDN first -->
-  <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
-  
-  <!-- Load our map logic -->
-  <script src="/js/volunteer-map.js"></script>
-  
-  <!-- Load Google Maps API -->
-  <script>
-    // Fetch Google Maps API key from worker and load Maps API
-    (async function() {
-      try {
-        const response = await fetch('/api/config');
-        const config = await response.json();
-        
-        if (!config.googleMapsApiKey) {
-          console.error('Google Maps API key not configured');
-          document.getElementById('map').innerHTML = '<div style="padding: 20px; color: red;">Error: Google Maps API key not configured. Please set GOOGLE_MAPS_API_KEY environment variable.</div>';
-          return;
-        }
-        
-        // Dynamically load Google Maps API with the key from config
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${config.googleMapsApiKey}&callback=initMap&loading=async&libraries=marker`;
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-      } catch (error) {
-        console.error('Failed to load configuration:', error);
-        document.getElementById('map').innerHTML = '<div style="padding: 20px; color: red;">Error: Failed to load configuration</div>';
-      }
-    })();
-  </script>
+    <!-- <h2 style="margin: 32px 0 12px; font-size: 18px;">API</h2>
+    <div style="display: grid; gap: 8px; font-size: 14px;">
+      <a href="/api/trips" style="color: #0b57d0;">/api/trips</a>
+      <a href="/api/volunteers" style="color: #0b57d0;">/api/volunteers</a>
+      <a href="/api/config" style="color: #0b57d0;">/api/config</a>
+    </div> -->
+  </main>
 </body>
 </html>

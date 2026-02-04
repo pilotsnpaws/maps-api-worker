@@ -1,4 +1,11 @@
-import { createConnection } from "mysql2/promise";
+let cachedCreateConnection: any = undefined;
+
+const getCreateConnection = async () => {
+  if (cachedCreateConnection) return cachedCreateConnection;
+  const mod = await import("mysql2/promise");
+  cachedCreateConnection = mod.createConnection;
+  return cachedCreateConnection;
+};
 
 export interface Env {
   // If you set another name in the Wrangler config file as the value for 'binding',
@@ -15,6 +22,7 @@ async function handleTrips(
 ): Promise<Response> {
   let connection: any = undefined;
   try {
+    const createConnection = await getCreateConnection();
     connection = await createConnection({
       host: env.HYPERDRIVE.host,
       user: env.HYPERDRIVE.user,
@@ -108,6 +116,7 @@ async function handleVolunteers(
 ): Promise<Response> {
   let connection: any = undefined;
   try {
+    const createConnection = await getCreateConnection();
     connection = await createConnection({
       host: env.HYPERDRIVE.host,
       user: env.HYPERDRIVE.user,
@@ -247,6 +256,10 @@ export default {
       });
     }
 
+    if (url.pathname === "/" || url.pathname === "/index.html") {
+      return env.ASSETS.fetch(new Request(new URL("/index.html", request.url)));
+    }
+
     // Map page routes
     if (url.pathname === "/maps/trips" || url.pathname === "/maps/trips/") {
       // Serve the trips map HTML page
@@ -255,11 +268,14 @@ export default {
 
     if (url.pathname === "/maps/volunteers" || url.pathname === "/maps/volunteers/") {
       // Serve the volunteer map HTML page
-      return env.ASSETS.fetch(new Request(new URL("/index.html", request.url)));
+      return env.ASSETS.fetch(new Request(new URL("/volunteers.html", request.url)));
     }
 
     // For any other path, return 404
     // Once we enable static assets, those will be served automatically
+    const assetResponse = await env.ASSETS.fetch(request);
+    if (assetResponse.status !== 404) return assetResponse;
+
     return new Response("Not Found", { status: 404 });
   },
 } satisfies ExportedHandler<Env>;
