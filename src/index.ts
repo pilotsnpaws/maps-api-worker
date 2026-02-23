@@ -277,6 +277,7 @@ export default {
     if (url.pathname === "/api/config") {
       return Response.json({
         googleMapsApiKey: env.GOOGLE_MAPS_API_KEY || '',
+        workerUrl: url.origin, // Send the worker's origin URL
       }, {
         headers: {
           "Cache-Control": "public, max-age=3600",
@@ -291,17 +292,23 @@ export default {
 
     // Map page routes
     if (url.pathname === "/maps/trips" || url.pathname === "/maps/trips/") {
-      // Serve the trips map HTML page
       return env.ASSETS.fetch(new Request(new URL("/trips.html", request.url)));
     }
 
     if (url.pathname === "/maps/volunteers" || url.pathname === "/maps/volunteers/") {
-      // Serve the volunteer map HTML page
       return env.ASSETS.fetch(new Request(new URL("/volunteers.html", request.url)));
     }
 
-    // For any other path, return 404
-    // Once we enable static assets, those will be served automatically
+    // Handle static assets under /maps/ by stripping /maps prefix and serving from root
+    if (url.pathname.startsWith("/maps/")) {
+      const assetPath = url.pathname.replace(/^\/maps/, "");
+      // Create a new URL with the stripped path
+      const assetUrl = new URL(request.url);
+      assetUrl.pathname = assetPath;
+      return env.ASSETS.fetch(new Request(assetUrl, request));
+    }
+
+    // For any other path, try to serve as static asset
     const assetResponse = await env.ASSETS.fetch(request);
     if (assetResponse.status !== 404) return assetResponse;
 
