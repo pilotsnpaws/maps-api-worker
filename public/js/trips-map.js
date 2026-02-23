@@ -14,6 +14,14 @@ async function initMap() {
     mapId: 'TRIP_MAP' // Required for advanced markers
   });
 
+  // Position custom controls on the map
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(
+    document.getElementById('optionsBox')
+  );
+  map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(
+    document.getElementById('legend')
+  );
+
   // Set up event listeners
   document.getElementById('updateBtn').addEventListener('click', loadTrips);
 

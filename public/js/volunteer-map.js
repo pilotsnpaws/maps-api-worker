@@ -143,19 +143,19 @@ function createVolunteerMarker(volunteer) {
   const isPilot = volunteer.pilot == 1;
   
   if (isFoster && isPilot) {
-    iconUrl = '/images/icon_plane_house_small.svg';
+    iconUrl = '/maps/images/icon_plane_house_small.svg';
     pilotInfo = `Flying distance: <b>${volunteer.flyingRadius || 'N/A'} nm</b><br>Airport: <b>${volunteer.airportID || ''} - ${volunteer.airportName || ''}</b><br>`;
   } else if (isFoster) {
-    iconUrl = '/images/icon_house_small.svg';
+    iconUrl = '/maps/images/icon_house_small.svg';
   } else if (isPilot) {
-    iconUrl = '/images/icon_plane_blue_small.svg';
+    iconUrl = '/maps/images/icon_plane_blue_small.svg';
     pilotInfo = `Flying distance: <b>${volunteer.flyingRadius || 'N/A'} nm</b><br>Airport: <b>${volunteer.airportID || ''} - ${volunteer.airportName || ''}</b><br>`;
   } else {
-    iconUrl = '/images/icon_volunteer.svg';
+    iconUrl = '/maps/images/icon_volunteer.svg';
   }
   
   // Create marker image element for AdvancedMarkerElement
-  const iconSize = iconUrl === '/images/icon_volunteer.svg' ? 20 : 32;
+  const iconSize = iconUrl === '/maps/images/icon_volunteer.svg' ? 20 : 32;
   const img = document.createElement('img');
   img.src = iconUrl;
   img.width = iconSize;
