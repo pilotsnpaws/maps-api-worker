@@ -233,6 +233,17 @@ html, body {
 .gm-style .gm-style-iw-d {
   overflow: hidden !important;
   max-height: none !important;
+  padding: 0 !important;
+}
+
+/* Remove all padding from InfoWindow content containers */
+.gm-style .gm-style-iw,
+.gm-style .gm-style-iw-t,
+.gm-style .gm-style-iw-tc,
+.gm-style .gm-style-iw-tc::before,
+.gm-style .gm-style-iw-tc::after {
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 /* Remove focus outline from trip popup title */
@@ -240,20 +251,12 @@ html, body {
   outline: none !important;
 }
 
-/* Position the close button properly over our custom padding */
-.gm-style .gm-style-iw-tc::after {
-  background: white;
-}
-
-.gm-style .gm-style-iw-ch {
-  padding: 0 !important;
-}
-
+/* Completely hide InfoWindow close button */
+.gm-style .gm-style-iw-ch,
 .gm-ui-hover-effect {
-  top: 4px !important;
-  right: 4px !important;
-  background-color: white !important;
-  border-radius: 50% !important;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
 }
 
 /* Responsive adjustments */

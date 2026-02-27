@@ -138,9 +138,9 @@ async function handleTrips(
       }
     }
     if (tripStatus === 'active') {
-      whereClauses.push("trip_status IN ('Open', 'Filled')");
+      whereClauses.push("trip_status COLLATE utf8mb4_unicode_ci IN ('Open', 'Filled')");
     } else if (tripStatus === 'all') {
-      whereClauses.push("trip_status NOT IN ('Cancelled', 'Outdated')");
+      whereClauses.push("trip_status COLLATE utf8mb4_unicode_ci NOT IN ('Cancelled', 'Outdated')");
     }
     if (whereClauses.length > 0) {
       baseQuery += " WHERE " + whereClauses.join(" AND ");
