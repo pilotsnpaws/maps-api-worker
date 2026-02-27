@@ -226,11 +226,37 @@ html, body {
 
 /* Google Maps InfoWindow styling adjustments */
 .gm-style .gm-style-iw-c {
-  padding: 12px !important;
+  padding: 0 !important;
+  border-radius: 8px !important;
 }
 
 .gm-style .gm-style-iw-d {
-  overflow: auto !important;
+  overflow: hidden !important;
+  max-height: none !important;
+  padding: 0 !important;
+}
+
+/* Remove all padding from InfoWindow content containers */
+.gm-style .gm-style-iw,
+.gm-style .gm-style-iw-t,
+.gm-style .gm-style-iw-tc,
+.gm-style .gm-style-iw-tc::before,
+.gm-style .gm-style-iw-tc::after {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Remove focus outline from trip popup title */
+.trip-popup-title:focus {
+  outline: none !important;
+}
+
+/* Completely hide InfoWindow close button */
+.gm-style .gm-style-iw-ch,
+.gm-ui-hover-effect {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
 }
 
 /* Responsive adjustments */

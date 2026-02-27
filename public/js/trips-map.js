@@ -2,6 +2,15 @@
 let map;
 let polylines = [];
 let infoWindows = [];
+let currentInfoWindow = null;
+
+// Global function to close current InfoWindow
+function closeInfoWindow() {
+  if (currentInfoWindow) {
+    currentInfoWindow.close();
+    currentInfoWindow = null;
+  }
+}
 
 // Initialize the map
 async function initMap() {
@@ -15,7 +24,7 @@ async function initMap() {
   });
 
   // Position custom controls on the map
-  map.controls[google.maps.ControlPosition.TOP_LEFT].push(
+  map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(
     document.getElementById('optionsBox')
   );
   map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(
@@ -25,9 +34,17 @@ async function initMap() {
   // Set up event listeners
   document.getElementById('updateBtn').addEventListener('click', loadTrips);
 
+  // Add checkbox change listener for active trips filter
+  document.getElementById('showActiveOnly').addEventListener('change', loadTrips);
+
   // Add radio button change listeners
   document.querySelectorAll('input[name="lastPostAge"]').forEach(radio => {
     radio.addEventListener('change', loadTrips);
+  });
+
+  // Add map click listener to close InfoWindow
+  map.addListener('click', () => {
+    closeInfoWindow();
   });
 
   // Load initial data
@@ -40,11 +57,17 @@ window.initMap = initMap;
 // Load trips from API
 async function loadTrips() {
   try {
-    // Get selected filter
+    // Get selected filters
     const lastPostAge = document.querySelector('input[name="lastPostAge"]:checked').value;
+    const showActiveOnly = document.getElementById('showActiveOnly').checked;
     
-    // Build API URL with query parameter
-    const apiUrl = `/api/trips?updated_last_days=${lastPostAge}`;
+    // Build API URL with query parameters
+    let apiUrl = `/api/trips?updated_last_days=${lastPostAge}`;
+    if (showActiveOnly) {
+      apiUrl += `&trip_status=active`;
+    } else {
+      apiUrl += `&trip_status=all`;
+    }
     
     // Fetch data
     const response = await fetch(apiUrl);
@@ -121,13 +144,23 @@ function addTripToMap(trip) {
   // Eastbound: green #00AD6E, Westbound: purple #8D00DE
   const strokeColor = eastbound ? '#00AD6E' : '#8D00DE';
   
-  // Create polyline
+  // Create invisible buffer line for easier clicking
+  const bufferLine = new google.maps.Polyline({
+    path: path,
+    geodesic: true,
+    strokeColor: '#FFFFFF',
+    strokeOpacity: 0.001, // Nearly invisible but still clickable
+    strokeWeight: 10, // Wider hit area
+    map: map
+  });
+
+  // Create visible polyline
   const polyline = new google.maps.Polyline({
     path: path,
     geodesic: true,
     strokeColor: strokeColor,
     strokeOpacity: 0.7,
-    strokeWeight: 2,
+    strokeWeight: 4, // Increased from 2 to 4 for better visibility
     map: map
   });
   
@@ -136,24 +169,38 @@ function addTripToMap(trip) {
   const distanceMiles = (distance * 0.000621371).toFixed(0); // meters to miles
   const distanceNM = (distance * 0.000539957).toFixed(0); // meters to nautical miles
   
-  // Create info window content
+  // Create info window popup content with compact design
+  const statusColor = trip.trip_status === 'Open' ? '#28a745' : 
+                      trip.trip_status === 'Filled' ? '#ffc107' : 
+                      trip.trip_status === 'Done' ? '#6c757d' : '#666';
+  
   const contentString = `
-    <div style="padding: 10px; max-width: 300px;">
-      <h3 style="margin: 0 0 10px 0; font-size: 14px;">
-        <a href="https://www.pilotsnpaws.org/forum/viewtopic.php?t=${trip.topic_id}" target="_blank" style="color: #0066cc; text-decoration: none;">
-          ${escapeHtml(trip.topic_title)}
+    <div data-testid="trip-popup" style="padding: 0 28px 12px 12px; max-width: 280px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <h3 style="margin: 0 0 4px 0; font-size: 14px; line-height: 1.3;">
+        <a data-testid="trip-popup-title" href="https://www.pilotsnpaws.org/forum/viewtopic.php?t=${trip.topic_id}" target="_blank" tabindex="-1" class="trip-popup-title" style="color: #0066cc; text-decoration: none; font-weight: 600;">
+          ${escapeHtml(decodeHtmlEntities(trip.topic_title))}
         </a>
+        <button onclick="closeInfoWindow()" tabindex="-1" style="float: right; background: none; border: none; font-size: 16px; cursor: pointer; color: #666; padding: 0; margin: 0;">✕</button>
       </h3>
-      <p style="margin: 5px 0; font-size: 12px;">
-        <strong>From:</strong> ${escapeHtml(trip.sendCity || trip.pnp_sendZip)}<br>
-        <strong>To:</strong> ${escapeHtml(trip.recCity || trip.pnp_recZip)}
-      </p>
-      <p style="margin: 5px 0; font-size: 12px;">
-        <strong>Distance:</strong> ${distanceMiles} miles / ${distanceNM} nm
-      </p>
-      <p style="margin: 5px 0; font-size: 11px; color: #666;">
-        <strong>Last updated:</strong> ${escapeHtml(trip.last_post_human || trip.last_post)}
-      </p>
+      
+      <div data-testid="trip-popup-route" style="display: flex; align-items: center; margin: 8px 0 6px 0; font-size: 12px; color: #333;">
+        <span style="font-weight: 500;">${escapeHtml(trip.sendCity || trip.pnp_sendZip)}</span>
+        <span style="margin: 0 6px; color: #999;">→</span>
+        <span style="font-weight: 500;">${escapeHtml(trip.recCity || trip.pnp_recZip)}</span>
+      </div>
+      
+      <div style="display: flex; align-items: center; gap: 12px; margin: 8px 0; font-size: 11px;">
+        <span data-testid="trip-popup-status" style="display: inline-flex; align-items: center; padding: 2px 8px; background: ${statusColor}15; color: ${statusColor}; border-radius: 12px; font-weight: 500;">
+          ${escapeHtml(trip.trip_status)}
+        </span>
+        <span data-testid="trip-popup-distance" style="color: #555;">
+          <strong>${distanceMiles}</strong> mi / <strong>${distanceNM}</strong> nm
+        </span>
+      </div>
+      
+      <div data-testid="trip-popup-date" style="font-size: 10px; color: #888; margin-top: 6px; border-top: 1px solid #eee; padding-top: 6px;">
+        ${escapeHtml(trip.last_post_human || trip.last_post)}
+      </div>
     </div>
   `;
   
@@ -162,17 +209,25 @@ function addTripToMap(trip) {
   });
   
   // Add click listener to show info window at midpoint
-  polyline.addListener('click', (event) => {
+  const clickHandler = (event) => {
     // Close all other info windows
     infoWindows.forEach(iw => iw.close());
+    
+    // Track current info window
+    currentInfoWindow = infoWindow;
     
     // Open this info window at click position
     infoWindow.setPosition(event.latLng);
     infoWindow.open(map);
-  });
+  };
+
+  // Attach to both lines for maximum click coverage
+  bufferLine.addListener('click', clickHandler);
+  polyline.addListener('click', clickHandler);
   
   // Store references
   polylines.push(polyline);
+  polylines.push(bufferLine); // Store buffer line for cleanup
   infoWindows.push(infoWindow);
 }
 
@@ -182,4 +237,12 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+// Decode HTML entities (like &amp; to &)
+function decodeHtmlEntities(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.innerHTML = text;
+  return div.textContent || div.innerText || '';
 }

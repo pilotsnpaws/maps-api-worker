@@ -16,7 +16,14 @@
     
     <div class="control-group">
       <label class="radio-label">
-        <input type="radio" name="lastPostAge" value="0"> Today only
+        <input type="checkbox" id="showActiveOnly" name="showActiveOnly" value="done" checked>
+        <strong>Show active trips only</strong>
+      </label>
+    </div>
+
+    <div class="control-group">
+      <label class="radio-label">
+        <input type="radio" name="lastPostAge" value="1"> Within a day
       </label>
       <label class="radio-label">
         <input type="radio" name="lastPostAge" value="3" checked> In the last 3 days

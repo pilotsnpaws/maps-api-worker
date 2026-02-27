@@ -87,6 +87,7 @@ async function handleTrips(
     const lastPostBefore = url.searchParams.get("last_post_before");
     const lastPostAfter = url.searchParams.get("last_post_after");
     let updatedLastDays = url.searchParams.get("updated_last_days");
+    const tripStatus = url.searchParams.get("trip_status");
     // Default to last 3 days if no last_post_before and no last_post_after provided
     if (!lastPostBefore && !lastPostAfter && !updatedLastDays) {
       updatedLastDays = "3";
@@ -135,6 +136,11 @@ async function handleTrips(
         whereClauses.push("last_post >= ?");
         params.push(cutoffStr);
       }
+    }
+    if (tripStatus === 'active') {
+      whereClauses.push("trip_status COLLATE utf8mb4_unicode_ci IN ('Open', 'Filled')");
+    } else if (tripStatus === 'all') {
+      whereClauses.push("trip_status COLLATE utf8mb4_unicode_ci NOT IN ('Cancelled', 'Outdated')");
     }
     if (whereClauses.length > 0) {
       baseQuery += " WHERE " + whereClauses.join(" AND ");
