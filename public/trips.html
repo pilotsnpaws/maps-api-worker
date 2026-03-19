@@ -12,7 +12,13 @@
 
   <!-- Options Control Box -->
   <div id="optionsBox" class="map-control">
-    <h3>Filter by recent activity</h3>
+    <h3>
+      Filter by recent activity
+      <button id="filterToggle" class="filter-toggle" aria-label="Toggle filters">
+        <span class="toggle-icon">▼</span>
+      </button>
+    </h3>
+    <div id="filterContent" class="filter-content">
     
     <div class="control-group">
       <label class="radio-label">
@@ -46,6 +52,7 @@
     </div>
 
     <button id="updateBtn" class="update-btn">Update Map</button>
+    </div>
   </div>
 
   <!-- Legend -->

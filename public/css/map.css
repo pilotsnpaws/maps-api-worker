@@ -31,6 +31,9 @@ html, body {
   margin: 0 0 12px 0;
   font-size: 16px;
   color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .map-control h4 {
@@ -103,6 +106,38 @@ html, body {
 
 .update-btn:active {
   background: #2868A8;
+}
+
+/* Filter toggle button */
+.filter-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 16px;
+  color: #666;
+  transition: color 0.2s;
+}
+
+.filter-toggle:hover {
+  color: #333;
+}
+
+.toggle-icon {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+/* Filter content collapsible */
+.filter-content {
+  max-height: 1000px;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.filter-content.collapsed {
+  max-height: 0;
+  transition: max-height 0.3s ease-in;
 }
 
 /* Legend */
@@ -277,6 +312,16 @@ html, body {
   
   #volunteersList {
     max-height: 40vh;
+  }
+  
+  /* Hide map/satellite toggle buttons on mobile */
+  .gm-style .gm-style-mtc {
+    display: none !important;
+  }
+  
+  /* Hide visible volunteers modal on mobile */
+  #mappedVolunteers {
+    display: none !important;
   }
 }
 
