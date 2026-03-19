@@ -54,9 +54,34 @@ window.initMap = function() {
   // Update visible volunteers when map bounds change
   map.addListener('idle', updateMappedVolunteersList);
 
+  // Set up filter toggle for mobile
+  setupFilterToggle();
+
   // Load initial data
   updateVolunteers();
 };
+
+/**
+ * Setup filter toggle functionality
+ */
+function setupFilterToggle() {
+  const filterToggle = document.getElementById('filterToggle');
+  const filterContent = document.getElementById('filterContent');
+  const toggleIcon = filterToggle.querySelector('.toggle-icon');
+  
+  // Check if mobile view
+  const isMobile = window.innerWidth <= 768;
+  
+  // Collapse by default on mobile
+  if (isMobile) {
+    filterContent.classList.add('collapsed');
+  }
+  
+  filterToggle.addEventListener('click', () => {
+    filterContent.classList.toggle('collapsed');
+    toggleIcon.textContent = filterContent.classList.contains('collapsed') ? '▶' : '▼';
+  });
+}
 
 /**
  * Fetch and display volunteers from the API

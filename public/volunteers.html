@@ -11,7 +11,13 @@
   <div id="map"></div>
 
   <div id="optionsBox" class="map-control">
-    <h3>Filter Options</h3>
+    <h3>
+      Filter Options
+      <button id="filterToggle" class="filter-toggle" aria-label="Toggle filters">
+        <span class="toggle-icon">▼</span>
+      </button>
+    </h3>
+    <div id="filterContent" class="filter-content">
     
     <div class="control-group">
       <label for="lastVisitAge">Last Visit Within:</label>
@@ -61,6 +67,7 @@
     </div>
 
     <button id="updateBtn" class="update-btn">Update Map</button>
+    </div>
   </div>
 
   <div id="legend" class="map-control">
